@@ -51,6 +51,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('permission:manage-payments')->group(function () {
         Route::get('/members/{member}/payments', [PaymentController::class, 'index'])->name('members.payments.index');
+        Route::post('/members/{member}/payments', [PaymentController::class, 'store'])->name('members.payments.store');
     });
 
     Route::middleware('permission:manage-users')->group(function () {

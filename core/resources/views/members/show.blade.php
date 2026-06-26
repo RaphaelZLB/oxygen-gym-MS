@@ -18,6 +18,9 @@
 
         <div class="d-flex gap-2">
             <a class="btn btn-outline-secondary" href="{{ route('members.index') }}">Back</a>
+            @can('manage-payments')
+                <a class="btn btn-primary" href="{{ route('members.payments.index', $member) }}">Payments</a>
+            @endcan
             @can('manage-members')
                 <a class="btn btn-primary" href="{{ route('members.edit', $member) }}">Edit</a>
             @endcan
@@ -82,9 +85,9 @@
                     <tbody>
                     @forelse ($subscriptions as $sub)
                         @php
-                            $paidTotal = $sub->payments->sum('amount');
-                            $due = $sub->final_price !== null ? max(0, (float) $sub->final_price - (float) $paidTotal) : 0;
-                            $needsPay = $due > 0.009;
+                            $paidTotal = $sub->amountPaid();
+                            $due = $sub->balanceDue();
+                            $needsPay = $sub->hasBalanceDue();
                         @endphp
                         <tr>
                             <td>

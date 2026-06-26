@@ -29,7 +29,7 @@ class EloquentMemberRepository implements MemberRepository
             'subscriptions' => function ($q) {
                 $q->where('status', 'active')
                     ->whereDate('end_date', '>=', now()->toDateString())
-                    ->with('plan')
+                    ->with(['plan', 'payments'])
                     ->orderByDesc('start_date');
             },
         ]);

@@ -13,6 +13,7 @@ class EloquentPaymentRepository implements PaymentRepository
     {
         return Payment::query()
             ->where('member_id', $memberId)
+            ->with(['subscription.plan'])
             ->orderByDesc('paid_at')
             ->paginate($perPage);
     }

@@ -40,6 +40,7 @@ class StoreSubscriptionRequest extends FormRequest
             'end_date' => ['nullable', 'date'],
             'method' => ['sometimes', 'in:cash,wish-money'],
             'paid_at' => ['sometimes', 'date'],
+            'payment_amount' => ['nullable', 'numeric', 'min:0.01'],
         ];
     }
 

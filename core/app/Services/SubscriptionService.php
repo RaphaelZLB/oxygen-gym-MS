@@ -77,11 +77,12 @@ class SubscriptionService
         ]);
 
         $paidAt = isset($data['paid_at']) ? CarbonImmutable::parse($data['paid_at']) : now();
+        $paymentAmount = $this->resolveInitialPaymentAmount($data, $finalPrice);
 
         $this->payments->create([
             'member_id' => $member->id,
             'subscription_id' => $subscription->id,
-            'amount' => $finalPrice,
+            'amount' => $paymentAmount,
             'method' => $data['method'] ?? 'cash',
             'paid_at' => $paidAt,
         ]);
@@ -122,11 +123,12 @@ class SubscriptionService
         ]);
 
         $paidAt = isset($data['paid_at']) ? CarbonImmutable::parse($data['paid_at']) : now();
+        $paymentAmount = $this->resolveInitialPaymentAmount($data, $finalPrice);
 
         $this->payments->create([
             'member_id' => $member->id,
             'subscription_id' => $subscription->id,
-            'amount' => $finalPrice,
+            'amount' => $paymentAmount,
             'method' => $data['method'] ?? 'cash',
             'paid_at' => $paidAt,
         ]);
@@ -156,5 +158,27 @@ class SubscriptionService
     public function allByPlan(string $planId): Collection
     {
         return $this->subscriptions->allByPlan($planId);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function resolveInitialPaymentAmount(array $data, float $finalPrice): float
+    {
+        if (! array_key_exists('payment_amount', $data) || $data['payment_amount'] === null || $data['payment_amount'] === '') {
+            return $finalPrice;
+        }
+
+        $paymentAmount = round((float) $data['payment_amount'], 2);
+
+        if ($paymentAmount <= 0) {
+            throw new \InvalidArgumentException('Payment amount must be greater than 0.');
+        }
+
+        if ($paymentAmount > $finalPrice) {
+            throw new \InvalidArgumentException('Payment amount cannot exceed the subscription total.');
+        }
+
+        return $paymentAmount;
     }
 }

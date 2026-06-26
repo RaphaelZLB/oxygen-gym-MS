@@ -37,6 +37,7 @@
                         <th>Plan type</th>
                         <th>Tags</th>
                         <th>Medical notes</th>
+                        <th class="text-end">Balance due</th>
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -45,6 +46,7 @@
                         @php
                             $currentSub = $member->subscriptions->first();
                             $planKind = $currentSub?->plan?->plan_kind ?? 'individual';
+                            $balanceDue = $currentSub?->balanceDue() ?? 0;
                         @endphp
                         <tr>
                             <td>{{ $member->first_name }} {{ $member->last_name }}</td>
@@ -87,6 +89,13 @@
                                 @endif
                             </td>
                             <td class="text-end">
+                                @if ($balanceDue > 0.009)
+                                    <span class="text-danger fw-semibold">${{ number_format($balanceDue, 2) }}</span>
+                                @else
+                                    <span class="text-muted small">—</span>
+                                @endif
+                            </td>
+                            <td class="text-end">
                                 <a class="btn btn-sm btn-outline-primary"
                                     href="{{ route('members.show', $member) }}">View</a>
                                 <a class="btn btn-sm btn-outline-secondary"
@@ -97,7 +106,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted p-3">No members found.</td>
+                            <td colspan="7" class="text-center text-muted p-3">No members found.</td>
                         </tr>
                     @endforelse
                 </tbody>

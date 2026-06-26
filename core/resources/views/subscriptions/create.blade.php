@@ -79,9 +79,17 @@
                     </div>
 
                     <div class="col-12 col-md-4">
-                        <label class="form-label">Amount to pay</label>
+                        <label class="form-label">Subscription total</label>
                         <div class="form-control bg-light" id="subscription_final_display" aria-live="polite">—</div>
-                        <div class="form-text">Charged on create.</div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <label class="form-label">Amount paid now (USD)</label>
+                        <input type="number" step="0.01" min="0.01" inputmode="decimal"
+                               class="form-control @error('payment_amount') is-invalid @enderror" name="payment_amount"
+                               id="subscription_payment_amount" value="{{ old('payment_amount') }}">
+                        <div class="form-text" id="subscription_payment_hint">Leave blank to charge the full amount now.</div>
+                        @error('payment_amount')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="col-12 col-md-4">
@@ -110,6 +118,8 @@
             const discountInput = document.getElementById('subscription_discount');
             const customAmountInput = document.getElementById('subscription_custom_amount');
             const endDateInput = document.getElementById('subscription_end_date');
+            const paymentAmountInput = document.getElementById('subscription_payment_amount');
+            const paymentHint = document.getElementById('subscription_payment_hint');
             const out = document.getElementById('subscription_final_display');
             if (!planSelect || !planBased || !customBlock || !discountInput || !customAmountInput || !endDateInput || !out) return;
 
@@ -137,6 +147,12 @@
                         out.textContent = '$' + amt.toFixed(2);
                         out.classList.remove('text-danger', 'fw-semibold');
                     }
+
+                    if (paymentHint) {
+                        paymentHint.textContent = amt > 0
+                            ? 'Leave blank to charge $' + amt.toFixed(2) + ' now, or enter a smaller partial payment.'
+                            : 'Enter a valid custom amount before recording payment.';
+                    }
                     return;
                 }
 
@@ -163,11 +179,20 @@
                 } else {
                     out.classList.remove('text-danger', 'fw-semibold');
                 }
+
+                if (paymentHint) {
+                    paymentHint.textContent = final > 0
+                        ? 'Leave blank to charge $' + final.toFixed(2) + ' now, or enter a smaller partial payment.'
+                        : 'Enter a valid subscription total before recording payment.';
+                }
             }
 
             planSelect.addEventListener('change', update);
             discountInput.addEventListener('input', update);
             customAmountInput.addEventListener('input', update);
+            if (paymentAmountInput) {
+                paymentAmountInput.addEventListener('input', update);
+            }
             update();
         })();
     </script>
